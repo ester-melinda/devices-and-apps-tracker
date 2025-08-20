@@ -1,0 +1,16 @@
+C:\Allied\github\DevicesAndAppsTracker\DevicesAndAppsTracker\bin\Debug\DevicesAndAppsTracker.exe.config
+C:\Allied\github\DevicesAndAppsTracker\DevicesAndAppsTracker\bin\Debug\DevicesAndAppsTracker.exe
+C:\Allied\github\DevicesAndAppsTracker\DevicesAndAppsTracker\bin\Debug\DevicesAndAppsTracker.pdb
+C:\Allied\github\DevicesAndAppsTracker\DevicesAndAppsTracker\bin\Debug\DevicesAndAppsTracker.xml
+C:\Allied\github\DevicesAndAppsTracker\DevicesAndAppsTracker\bin\Debug\Newtonsoft.Json.dll
+C:\Allied\github\DevicesAndAppsTracker\DevicesAndAppsTracker\bin\Debug\Newtonsoft.Json.xml
+C:\Allied\github\DevicesAndAppsTracker\DevicesAndAppsTracker\obj\Debug\DevicesAndAppsTracker.vbproj.AssemblyReference.cache
+C:\Allied\github\DevicesAndAppsTracker\DevicesAndAppsTracker\obj\Debug\DevicesAndAppsTracker.vbproj.SuggestedBindingRedirects.cache
+C:\Allied\github\DevicesAndAppsTracker\DevicesAndAppsTracker\obj\Debug\DevicesAndAppsTracker.Form1.resources
+C:\Allied\github\DevicesAndAppsTracker\DevicesAndAppsTracker\obj\Debug\DevicesAndAppsTracker.Resources.resources
+C:\Allied\github\DevicesAndAppsTracker\DevicesAndAppsTracker\obj\Debug\DevicesAndAppsTracker.vbproj.GenerateResource.cache
+C:\Allied\github\DevicesAndAppsTracker\DevicesAndAppsTracker\obj\Debug\DevicesAndAppsTracker.vbproj.CoreCompileInputs.cache
+C:\Allied\github\DevicesAndAppsTracker\DevicesAndAppsTracker\obj\Debug\DevicesAndAppsTracker.vbproj.CopyComplete
+C:\Allied\github\DevicesAndAppsTracker\DevicesAndAppsTracker\obj\Debug\DevicesAndAppsTracker.exe
+C:\Allied\github\DevicesAndAppsTracker\DevicesAndAppsTracker\obj\Debug\DevicesAndAppsTracker.xml
+C:\Allied\github\DevicesAndAppsTracker\DevicesAndAppsTracker\obj\Debug\DevicesAndAppsTracker.pdb
