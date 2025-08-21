@@ -2,14 +2,52 @@
 Imports System.Diagnostics
 Imports System.IO
 Imports System.Windows.Forms.VisualStyles.VisualStyleElement
+Imports Microsoft.VisualBasic.Logging
 Imports Newtonsoft.Json.Linq
 
 Public Class Form1
+    Private logger As New DllLogger.ClassLogger
     Private funcSettings As New ClassSettings
+
+    Public Sub reloadServerSetting()
+        Try
+            Dim serverPath As String = logger.appPath
+            Dim localPath As String = Application.StartupPath
+            Dim fileSetting As String() = {"Paths.ini", "SQLSetting.ini"}
+            For i = 0 To UBound(fileSetting)
+                If File.Exists(localPath & "\" & fileSetting(i)) Then
+                    Dim valueServer As String = File.ReadAllText(serverPath & "\" & fileSetting(i))
+                    Dim valueLocal As String = File.ReadAllText(localPath & "\" & fileSetting(i))
+                    If valueServer <> valueLocal Then
+                        File.Copy(serverPath & "\" & fileSetting(i), localPath & "\" & fileSetting(i), True)
+                    End If
+                Else
+                    File.Copy(serverPath & "\" & fileSetting(i), localPath & "\" & fileSetting(i), True)
+                End If
+            Next
+        Catch ex As Exception
+            funcSettings.writeLog(Me.GetType().Name, ex.Message & vbCrLf & ex.StackTrace)
+        End Try
+    End Sub
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
-            btnRefresh.Enabled = True
+            reloadServerSetting()
+
+            If (System.IO.File.Exists("SQLSetting.ini")) Then
+                Dim read2 As String
+                read2 = My.Computer.FileSystem.ReadAllText(Application.StartupPath & "\SQLSetting.ini")
+                If read2 <> "" Then
+                    Dim splitRead2 As String() = read2.Split(",")
+                    Dim host As String = splitRead2(0)
+                    Dim database As String = "qantas_wine"
+                    Me.Text = Me.Text & " | " & "MySQL Host: " & host & "  |  Database: " & database
+                Else
+                    Me.Text = Me.Text & " | " & "Database not found"
+                End If
+            End If
+
+            btnGetDevices.Enabled = True
             btnCancel.Enabled = False
             pbLoadDevices.Visible = False
             pbLoadDevices.Style = ProgressBarStyle.Marquee
@@ -22,9 +60,9 @@ Public Class Form1
         End Try
     End Sub
 
-    Private Sub loadDevices()
+    Private Sub getDevices()
         Try
-            btnRefresh.Enabled = False
+            btnGetDevices.Enabled = False
             btnCancel.Enabled = True
             pbLoadDevices.Visible = True
             lblLoadingDevies.Text = "Loading..."
@@ -142,10 +180,39 @@ Public Class Form1
                 End If
 
                 Dim row As DataRow = dt.NewRow()
+                Dim deviceName As String = ""
+                Dim deviceEnabled As String = ""
+                Dim deviceStatus As String = ""
+                Dim deviceIP As String = ""
+                Dim deviceUserLogin As String = ""
+                Dim funcCRUD As New ClassCRUD
+
                 For Each col As JProperty In obj.Properties()
+                    If bgwLoadDevices.CancellationPending Then
+                        e.Cancel = True
+                        Exit Sub
+                    End If
+
                     row(col.Name) = col.Value.ToString()
+
+                    If col.Name = "ComputerName" Then
+                        deviceName = col.Value.ToString()
+                    ElseIf col.Name = "AD_Enabled" Then
+                        deviceEnabled = col.Value.ToString()
+                    ElseIf col.Name = "Status" Then
+                        deviceStatus = col.Value.ToString()
+                    ElseIf col.Name = "IPAddress" Then
+                        deviceIP = col.Value.ToString()
+                    ElseIf col.Name = "LoggedOnUser" Then
+                        deviceUserLogin = col.Value.ToString()
+                    End If
                 Next
+
                 dt.Rows.Add(row)
+                funcCRUD = New ClassCRUD
+                If funcCRUD.insertDevices(deviceName, deviceEnabled, deviceStatus, deviceIP, deviceUserLogin) Then
+
+                End If
             Next
 
             e.Result = dt
@@ -156,7 +223,7 @@ Public Class Form1
 
     Private Sub bgwLoadDevices_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles bgwLoadDevices.RunWorkerCompleted
         Try
-            btnRefresh.Enabled = True
+            btnGetDevices.Enabled = True
             btnCancel.Enabled = False
             pbLoadDevices.Visible = False
 
@@ -175,13 +242,15 @@ Public Class Form1
                         lblLoadingDevies.Text = "Error"
                         lblLoadingDevies.ForeColor = Color.Red
                     Else
-                        dgvResults.DataSource = dt
+                        'dgvResults.DataSource = dt
 
                         lblLoadingDevies.Text = "Done"
                         lblLoadingDevies.ForeColor = Color.Green
                     End If
                 End If
             End If
+
+            loadDevices()
         Catch ex As Exception
             funcSettings.writeLog(Me.GetType().Name, ex.Message & vbCrLf & ex.StackTrace)
         End Try
@@ -197,5 +266,66 @@ Public Class Form1
         Catch ex As Exception
             funcSettings.writeLog(Me.GetType().Name, ex.Message & vbCrLf & ex.StackTrace)
         End Try
+    End Sub
+
+    Public Sub loadDevices()
+        Me.Cursor = Cursors.WaitCursor
+
+        Try
+            Dim funcCRUD As New ClassCRUD
+            Dim dt As New DataTable
+            dt = funcCRUD.loadDevices()
+
+            dgvResults.DataSource = dt
+
+            dgvResults.Columns("id").Frozen = True
+            dgvResults.Columns("id").Visible = False
+            dgvResults.Columns("id").ReadOnly = True
+            dgvResults.Columns("device_name").HeaderText = "Device Name"
+            dgvResults.Columns("device_name").AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            dgvResults.Columns("device_name").ReadOnly = True
+            dgvResults.Columns("device_name").Frozen = True
+            dgvResults.Columns("device_enabled").HeaderText = "Enabled"
+            dgvResults.Columns("device_enabled").AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            dgvResults.Columns("device_enabled").ReadOnly = True
+            dgvResults.Columns("device_status").HeaderText = "Status"
+            dgvResults.Columns("device_status").AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            dgvResults.Columns("device_status").ReadOnly = True
+            dgvResults.Columns("device_ip").HeaderText = "IP Address"
+            dgvResults.Columns("device_ip").AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            dgvResults.Columns("device_ip").ReadOnly = True
+            dgvResults.Columns("device_user_login").HeaderText = "Logged On User"
+            dgvResults.Columns("device_user_login").AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            dgvResults.Columns("device_user_login").ReadOnly = True
+            dgvResults.Columns("created_at").HeaderText = "Created At"
+            dgvResults.Columns("created_at").AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            dgvResults.Columns("created_at").DefaultCellStyle.Format = "dd/MM/yyyy HH:mm:ss"
+            dgvResults.Columns("created_at").ReadOnly = True
+
+            lblCount.Text = "Count : " & dgvResults.Rows.Count
+            dgvResults.ClearSelection()
+        Catch ex As Exception
+            funcSettings.writeLog(Me.GetType().Name, ex.Message & vbCrLf & ex.StackTrace)
+        Finally
+            Me.Cursor = Cursors.Default
+            Dim MemClass As New ClassMemory()
+            MemClass = Nothing
+        End Try
+    End Sub
+
+    Private Sub btnGetDevices_Click(sender As Object, e As EventArgs) Handles btnGetDevices.Click
+        getDevices()
+    End Sub
+
+    Private Sub dgvResults_CellFormatting(sender As Object, e As DataGridViewCellFormattingEventArgs) Handles dgvResults.CellFormatting
+        If dgvResults.Columns(e.ColumnIndex).Name = "device_status" AndAlso e.Value IsNot Nothing Then
+            e.CellStyle.Font = New Font(dgvResults.Font, FontStyle.Bold)
+
+            If e.Value.ToString().ToLower() = "online" Then
+                e.CellStyle.ForeColor = Color.Green
+            ElseIf e.Value.ToString().ToLower() = "offline" Then
+                e.CellStyle.ForeColor = Color.Red
+            End If
+        End If
     End Sub
 End Class

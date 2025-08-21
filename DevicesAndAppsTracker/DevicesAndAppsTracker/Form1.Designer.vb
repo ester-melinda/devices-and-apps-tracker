@@ -28,20 +28,25 @@ Partial Class Form1
         Me.bgwLoadDevices = New System.ComponentModel.BackgroundWorker()
         Me.lblLoadingDevies = New System.Windows.Forms.Label()
         Me.btnCancel = New System.Windows.Forms.Button()
+        Me.lblCount = New System.Windows.Forms.Label()
+        Me.btnLogs = New System.Windows.Forms.Button()
+        Me.btnGetDevices = New System.Windows.Forms.Button()
         CType(Me.dgvResults, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'dgvResults
         '
+        Me.dgvResults.AllowUserToAddRows = False
+        Me.dgvResults.AllowUserToDeleteRows = False
         Me.dgvResults.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.dgvResults.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvResults.Location = New System.Drawing.Point(12, 62)
+        Me.dgvResults.Location = New System.Drawing.Point(12, 88)
         Me.dgvResults.Name = "dgvResults"
         Me.dgvResults.RowHeadersWidth = 51
         Me.dgvResults.RowTemplate.Height = 24
-        Me.dgvResults.Size = New System.Drawing.Size(972, 550)
+        Me.dgvResults.Size = New System.Drawing.Size(972, 524)
         Me.dgvResults.TabIndex = 0
         '
         'btnRefresh
@@ -57,10 +62,10 @@ Partial Class Form1
         '
         Me.pbLoadDevices.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.pbLoadDevices.Location = New System.Drawing.Point(262, 12)
+        Me.pbLoadDevices.Location = New System.Drawing.Point(510, 12)
         Me.pbLoadDevices.MarqueeAnimationSpeed = 30
         Me.pbLoadDevices.Name = "pbLoadDevices"
-        Me.pbLoadDevices.Size = New System.Drawing.Size(722, 44)
+        Me.pbLoadDevices.Size = New System.Drawing.Size(474, 44)
         Me.pbLoadDevices.TabIndex = 2
         '
         'bgwLoadDevices
@@ -71,26 +76,57 @@ Partial Class Form1
         Me.lblLoadingDevies.AutoSize = True
         Me.lblLoadingDevies.BackColor = System.Drawing.Color.Transparent
         Me.lblLoadingDevies.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.2!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblLoadingDevies.Location = New System.Drawing.Point(277, 23)
+        Me.lblLoadingDevies.Location = New System.Drawing.Point(523, 23)
         Me.lblLoadingDevies.Name = "lblLoadingDevies"
-        Me.lblLoadingDevies.Size = New System.Drawing.Size(113, 25)
+        Me.lblLoadingDevies.Size = New System.Drawing.Size(90, 20)
         Me.lblLoadingDevies.TabIndex = 3
         Me.lblLoadingDevies.Text = "Loading..."
         '
         'btnCancel
         '
-        Me.btnCancel.Location = New System.Drawing.Point(143, 12)
+        Me.btnCancel.Location = New System.Drawing.Point(301, 12)
         Me.btnCancel.Name = "btnCancel"
         Me.btnCancel.Size = New System.Drawing.Size(100, 44)
         Me.btnCancel.TabIndex = 4
         Me.btnCancel.Text = "CANCEL"
         Me.btnCancel.UseVisualStyleBackColor = True
         '
+        'lblCount
+        '
+        Me.lblCount.AutoSize = True
+        Me.lblCount.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.8!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblCount.Location = New System.Drawing.Point(12, 67)
+        Me.lblCount.Name = "lblCount"
+        Me.lblCount.Size = New System.Drawing.Size(58, 16)
+        Me.lblCount.TabIndex = 5
+        Me.lblCount.Text = "Count : "
+        '
+        'btnLogs
+        '
+        Me.btnLogs.Location = New System.Drawing.Point(407, 12)
+        Me.btnLogs.Name = "btnLogs"
+        Me.btnLogs.Size = New System.Drawing.Size(95, 44)
+        Me.btnLogs.TabIndex = 6
+        Me.btnLogs.Text = "LOGS"
+        Me.btnLogs.UseVisualStyleBackColor = True
+        '
+        'btnGetDevices
+        '
+        Me.btnGetDevices.Location = New System.Drawing.Point(143, 12)
+        Me.btnGetDevices.Name = "btnGetDevices"
+        Me.btnGetDevices.Size = New System.Drawing.Size(152, 44)
+        Me.btnGetDevices.TabIndex = 7
+        Me.btnGetDevices.Text = "GET DEVICES"
+        Me.btnGetDevices.UseVisualStyleBackColor = True
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(996, 624)
+        Me.Controls.Add(Me.btnGetDevices)
+        Me.Controls.Add(Me.btnLogs)
+        Me.Controls.Add(Me.lblCount)
         Me.Controls.Add(Me.btnCancel)
         Me.Controls.Add(Me.lblLoadingDevies)
         Me.Controls.Add(Me.pbLoadDevices)
@@ -110,4 +146,7 @@ Partial Class Form1
     Friend WithEvents bgwLoadDevices As System.ComponentModel.BackgroundWorker
     Friend WithEvents lblLoadingDevies As Label
     Friend WithEvents btnCancel As Button
+    Friend WithEvents lblCount As Label
+    Friend WithEvents btnLogs As Button
+    Friend WithEvents btnGetDevices As Button
 End Class
