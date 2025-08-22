@@ -1,6 +1,10 @@
 ﻿Imports System.IO
+Imports MySql.Data.MySqlClient
 
 Public Class ClassSettings
+    Public dbConn As New DllConnection.connection
+    Dim cmdmysql As New MySqlCommand
+
     Function GetUserName() As String
         Try
             If TypeOf My.User.CurrentPrincipal Is
@@ -49,4 +53,78 @@ Public Class ClassSettings
             GC.WaitForPendingFinalizers()
         End Try
     End Sub
+
+    Public Function saveSettings(ByVal getDevicesEvery As String) As Boolean
+        Try
+            dbConn.connectedMySQL()
+
+            If Not (dbConn.cnnMysql.State = ConnectionState.Open) Then
+                dbConn.cnnMysql.Open()
+            End If
+
+            cmdmysql.Parameters.Clear()
+            cmdmysql.CommandType = CommandType.Text
+            cmdmysql.CommandText = "UPDATE devices_apps_tracker.settings SET get_devices_every = @get_devices_every, updated_at = NOW() WHERE `id` = 1"
+            cmdmysql.Parameters.AddWithValue("@get_devices_every", getDevicesEvery)
+            cmdmysql.Connection = dbConn.cnnMysql
+            cmdmysql.ExecuteNonQuery()
+
+            Return True
+        Catch ex As Exception
+            writeLog(Me.GetType().Name, ex.Message & vbCrLf & ex.StackTrace)
+            Return False
+        Finally
+            dbConn.disconnectedMysql()
+        End Try
+    End Function
+
+    Public Function getSettings() As DataTable
+        Try
+            Dim dt As New DataTable
+            Dim da As New MySqlDataAdapter(cmdmysql)
+
+            dbConn.connectedMySQL()
+
+            If Not (dbConn.cnnMysql.State = ConnectionState.Open) Then
+                dbConn.cnnMysql.Open()
+            End If
+
+            cmdmysql.Parameters.Clear()
+            cmdmysql.Connection = dbConn.cnnMysql
+            cmdmysql.CommandType = CommandType.Text
+            cmdmysql.CommandText = "SELECT * FROM devices_apps_tracker.settings WHERE `id` = 1"
+            da.SelectCommand = cmdmysql
+            da.Fill(dt)
+
+            Return dt
+        Catch ex As Exception
+            writeLog(Me.GetType().Name, ex.Message & vbCrLf & ex.StackTrace)
+            Return Nothing
+        Finally
+            dbConn.disconnectedMysql()
+        End Try
+    End Function
+
+    Public Function setLastDevicesRetrieved() As Boolean
+        Try
+            dbConn.connectedMySQL()
+
+            If Not (dbConn.cnnMysql.State = ConnectionState.Open) Then
+                dbConn.cnnMysql.Open()
+            End If
+
+            cmdmysql.Parameters.Clear()
+            cmdmysql.CommandType = CommandType.Text
+            cmdmysql.CommandText = "UPDATE devices_apps_tracker.settings SET last_devices_retrieved = NOW() WHERE `id` = 1"
+            cmdmysql.Connection = dbConn.cnnMysql
+            cmdmysql.ExecuteNonQuery()
+
+            Return True
+        Catch ex As Exception
+            writeLog(Me.GetType().Name, ex.Message & vbCrLf & ex.StackTrace)
+            Return False
+        Finally
+            dbConn.disconnectedMysql()
+        End Try
+    End Function
 End Class

@@ -22,15 +22,19 @@ Partial Class Form1
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
+        Me.components = New System.ComponentModel.Container()
         Me.dgvResults = New System.Windows.Forms.DataGridView()
         Me.btnRefresh = New System.Windows.Forms.Button()
         Me.pbLoadDevices = New System.Windows.Forms.ProgressBar()
-        Me.bgwLoadDevices = New System.ComponentModel.BackgroundWorker()
+        Me.bgwGetDevices = New System.ComponentModel.BackgroundWorker()
         Me.lblLoadingDevies = New System.Windows.Forms.Label()
         Me.btnCancel = New System.Windows.Forms.Button()
         Me.lblCount = New System.Windows.Forms.Label()
         Me.btnLogs = New System.Windows.Forms.Button()
         Me.btnGetDevices = New System.Windows.Forms.Button()
+        Me.btnSettings = New System.Windows.Forms.Button()
+        Me.lblLastDevicesRetrieved = New System.Windows.Forms.Label()
+        Me.tmSleepGetDevices = New System.Windows.Forms.Timer(Me.components)
         CType(Me.dgvResults, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -46,7 +50,7 @@ Partial Class Form1
         Me.dgvResults.Name = "dgvResults"
         Me.dgvResults.RowHeadersWidth = 51
         Me.dgvResults.RowTemplate.Height = 24
-        Me.dgvResults.Size = New System.Drawing.Size(972, 524)
+        Me.dgvResults.Size = New System.Drawing.Size(1132, 547)
         Me.dgvResults.TabIndex = 0
         '
         'btnRefresh
@@ -60,15 +64,13 @@ Partial Class Form1
         '
         'pbLoadDevices
         '
-        Me.pbLoadDevices.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.pbLoadDevices.Location = New System.Drawing.Point(510, 12)
         Me.pbLoadDevices.MarqueeAnimationSpeed = 30
         Me.pbLoadDevices.Name = "pbLoadDevices"
-        Me.pbLoadDevices.Size = New System.Drawing.Size(474, 44)
+        Me.pbLoadDevices.Size = New System.Drawing.Size(497, 44)
         Me.pbLoadDevices.TabIndex = 2
         '
-        'bgwLoadDevices
+        'bgwGetDevices
         '
         '
         'lblLoadingDevies
@@ -119,11 +121,38 @@ Partial Class Form1
         Me.btnGetDevices.Text = "GET DEVICES"
         Me.btnGetDevices.UseVisualStyleBackColor = True
         '
+        'btnSettings
+        '
+        Me.btnSettings.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnSettings.Location = New System.Drawing.Point(1025, 12)
+        Me.btnSettings.Name = "btnSettings"
+        Me.btnSettings.Size = New System.Drawing.Size(120, 44)
+        Me.btnSettings.TabIndex = 8
+        Me.btnSettings.Text = "SETTINGS"
+        Me.btnSettings.UseVisualStyleBackColor = True
+        '
+        'lblLastDevicesRetrieved
+        '
+        Me.lblLastDevicesRetrieved.AutoSize = True
+        Me.lblLastDevicesRetrieved.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.8!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblLastDevicesRetrieved.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
+        Me.lblLastDevicesRetrieved.Location = New System.Drawing.Point(140, 67)
+        Me.lblLastDevicesRetrieved.Name = "lblLastDevicesRetrieved"
+        Me.lblLastDevicesRetrieved.Size = New System.Drawing.Size(186, 16)
+        Me.lblLastDevicesRetrieved.TabIndex = 9
+        Me.lblLastDevicesRetrieved.Text = "Last devices retrieved on "
+        '
+        'tmSleepGetDevices
+        '
+        Me.tmSleepGetDevices.Interval = 1000
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(996, 624)
+        Me.ClientSize = New System.Drawing.Size(1156, 647)
+        Me.Controls.Add(Me.lblLastDevicesRetrieved)
+        Me.Controls.Add(Me.btnSettings)
         Me.Controls.Add(Me.btnGetDevices)
         Me.Controls.Add(Me.btnLogs)
         Me.Controls.Add(Me.lblCount)
@@ -143,10 +172,13 @@ Partial Class Form1
     Friend WithEvents dgvResults As DataGridView
     Friend WithEvents btnRefresh As Button
     Friend WithEvents pbLoadDevices As ProgressBar
-    Friend WithEvents bgwLoadDevices As System.ComponentModel.BackgroundWorker
+    Friend WithEvents bgwGetDevices As System.ComponentModel.BackgroundWorker
     Friend WithEvents lblLoadingDevies As Label
     Friend WithEvents btnCancel As Button
     Friend WithEvents lblCount As Label
     Friend WithEvents btnLogs As Button
     Friend WithEvents btnGetDevices As Button
+    Friend WithEvents btnSettings As Button
+    Friend WithEvents lblLastDevicesRetrieved As Label
+    Friend WithEvents tmSleepGetDevices As Timer
 End Class

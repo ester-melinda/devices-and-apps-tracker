@@ -154,6 +154,12 @@
     <Compile Include="FrmLogs.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="FrmSettings.Designer.vb">
+      <DependentUpon>FrmSettings.vb</DependentUpon>
+    </Compile>
+    <Compile Include="FrmSettings.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -176,6 +182,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FrmLogs.resx">
       <DependentUpon>FrmLogs.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmSettings.resx">
+      <DependentUpon>FrmSettings.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>

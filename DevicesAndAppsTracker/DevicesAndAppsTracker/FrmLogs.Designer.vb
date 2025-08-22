@@ -33,7 +33,7 @@ Partial Class FrmLogs
         Me.Label3 = New System.Windows.Forms.Label()
         Me.cmbFilterIPAddress = New System.Windows.Forms.ComboBox()
         Me.Label4 = New System.Windows.Forms.Label()
-        Me.cmbFilterLoggedOnUser = New System.Windows.Forms.ComboBox()
+        Me.cmbFilterLoggedInUser = New System.Windows.Forms.ComboBox()
         Me.Label5 = New System.Windows.Forms.Label()
         CType(Me.dgvResults, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -102,7 +102,7 @@ Partial Class FrmLogs
         '
         Me.cmbFilterEnabled.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cmbFilterEnabled.FormattingEnabled = True
-        Me.cmbFilterEnabled.Items.AddRange(New Object() {"ALL", "TRUE", "FALSE"})
+        Me.cmbFilterEnabled.Items.AddRange(New Object() {"ALL", "True", "False"})
         Me.cmbFilterEnabled.Location = New System.Drawing.Point(117, 46)
         Me.cmbFilterEnabled.Name = "cmbFilterEnabled"
         Me.cmbFilterEnabled.Size = New System.Drawing.Size(105, 24)
@@ -144,29 +144,30 @@ Partial Class FrmLogs
         Me.Label4.TabIndex = 20
         Me.Label4.Text = "IP Address"
         '
-        'cmbFilterLoggedOnUser
+        'cmbFilterLoggedInUser
         '
-        Me.cmbFilterLoggedOnUser.FormattingEnabled = True
-        Me.cmbFilterLoggedOnUser.Location = New System.Drawing.Point(480, 46)
-        Me.cmbFilterLoggedOnUser.Name = "cmbFilterLoggedOnUser"
-        Me.cmbFilterLoggedOnUser.Size = New System.Drawing.Size(198, 24)
-        Me.cmbFilterLoggedOnUser.TabIndex = 23
+        Me.cmbFilterLoggedInUser.FormattingEnabled = True
+        Me.cmbFilterLoggedInUser.Items.AddRange(New Object() {"", "No user logged in", "At least one user is logged in"})
+        Me.cmbFilterLoggedInUser.Location = New System.Drawing.Point(480, 46)
+        Me.cmbFilterLoggedInUser.Name = "cmbFilterLoggedInUser"
+        Me.cmbFilterLoggedInUser.Size = New System.Drawing.Size(303, 24)
+        Me.cmbFilterLoggedInUser.TabIndex = 23
         '
         'Label5
         '
         Me.Label5.AutoSize = True
-        Me.Label5.Location = New System.Drawing.Point(357, 49)
+        Me.Label5.Location = New System.Drawing.Point(364, 49)
         Me.Label5.Name = "Label5"
-        Me.Label5.Size = New System.Drawing.Size(106, 16)
+        Me.Label5.Size = New System.Drawing.Size(99, 16)
         Me.Label5.TabIndex = 22
-        Me.Label5.Text = "Logged On User"
+        Me.Label5.Text = "Logged In User"
         '
         'FrmLogs
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1157, 689)
-        Me.Controls.Add(Me.cmbFilterLoggedOnUser)
+        Me.Controls.Add(Me.cmbFilterLoggedInUser)
         Me.Controls.Add(Me.Label5)
         Me.Controls.Add(Me.cmbFilterIPAddress)
         Me.Controls.Add(Me.Label4)
@@ -197,6 +198,6 @@ Partial Class FrmLogs
     Friend WithEvents Label3 As Label
     Friend WithEvents cmbFilterIPAddress As ComboBox
     Friend WithEvents Label4 As Label
-    Friend WithEvents cmbFilterLoggedOnUser As ComboBox
+    Friend WithEvents cmbFilterLoggedInUser As ComboBox
     Friend WithEvents Label5 As Label
 End Class

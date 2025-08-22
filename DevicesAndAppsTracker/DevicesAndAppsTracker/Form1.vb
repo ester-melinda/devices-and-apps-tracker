@@ -1,6 +1,7 @@
 ﻿Imports System.ComponentModel
 Imports System.Diagnostics
 Imports System.IO
+Imports System.Threading
 Imports System.Windows.Forms.VisualStyles.VisualStyleElement
 Imports Microsoft.VisualBasic.Logging
 Imports Newtonsoft.Json.Linq
@@ -8,6 +9,8 @@ Imports Newtonsoft.Json.Linq
 Public Class Form1
     Private logger As New DllLogger.ClassLogger
     Private funcSettings As New ClassSettings
+    Dim thSleepGetDevices As Thread
+    Dim getDevicesEvery As Integer = 0
 
     Public Sub reloadServerSetting()
         Try
@@ -47,12 +50,27 @@ Public Class Form1
                 End If
             End If
 
+            thSleepGetDevices = New Thread(New ThreadStart(AddressOf goToSleepGetDevices))
+
             btnGetDevices.Enabled = True
             btnCancel.Enabled = False
             pbLoadDevices.Visible = False
             pbLoadDevices.Style = ProgressBarStyle.Marquee
             lblLoadingDevies.Text = ""
             lblLoadingDevies.ForeColor = Color.Black
+
+            Dim lastDevicesRetrieved As String = ""
+            Dim dtSettings As New DataTable
+            funcSettings = New ClassSettings
+            dtSettings = funcSettings.getSettings()
+
+            If dtSettings.Rows.Count > 0 Then
+                If Not String.IsNullOrEmpty(dtSettings.Rows(0).Item("last_devices_retrieved").ToString()) Then
+                    lastDevicesRetrieved = dtSettings.Rows(0).Item("last_devices_retrieved").ToString()
+                End If
+            End If
+
+            lblLastDevicesRetrieved.Text = "Last devices retrieved on " & lastDevicesRetrieved
 
             loadDevices()
         Catch ex As Exception
@@ -68,10 +86,10 @@ Public Class Form1
             lblLoadingDevies.Text = "Loading..."
             lblLoadingDevies.ForeColor = Color.Black
 
-            If bgwLoadDevices.IsBusy = False Then
-                bgwLoadDevices.WorkerSupportsCancellation = True
-                bgwLoadDevices.WorkerReportsProgress = True
-                bgwLoadDevices.RunWorkerAsync()
+            If bgwGetDevices.IsBusy = False Then
+                bgwGetDevices.WorkerSupportsCancellation = True
+                bgwGetDevices.WorkerReportsProgress = True
+                bgwGetDevices.RunWorkerAsync()
             End If
         Catch ex As Exception
             funcSettings.writeLog(Me.GetType().Name, ex.Message & vbCrLf & ex.StackTrace)
@@ -84,9 +102,15 @@ Public Class Form1
 
     Private Sub Form1_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
         Try
-            If bgwLoadDevices.IsBusy Then
-                If bgwLoadDevices.WorkerSupportsCancellation Then
-                    bgwLoadDevices.CancelAsync()
+            tmSleepGetDevices.Stop()
+
+            If thSleepGetDevices.IsAlive Then
+                thSleepGetDevices.Abort()
+            End If
+
+            If bgwGetDevices.IsBusy Then
+                If bgwGetDevices.WorkerSupportsCancellation Then
+                    bgwGetDevices.CancelAsync()
                 End If
             End If
         Catch ex As Exception
@@ -94,11 +118,24 @@ Public Class Form1
         End Try
     End Sub
 
-    Private Sub bgwLoadDevices_DoWork(sender As Object, e As DoWorkEventArgs) Handles bgwLoadDevices.DoWork
+    Private Sub bgwGetDevices_DoWork(sender As Object, e As DoWorkEventArgs) Handles bgwGetDevices.DoWork
+        Dim funcCRUD As New ClassCRUD
+
         Try
-            If bgwLoadDevices.CancellationPending Then
+            If bgwGetDevices.CancellationPending Then
                 e.Cancel = True
                 Exit Sub
+            End If
+
+            tmSleepGetDevices.Stop()
+
+            If thSleepGetDevices.IsAlive Then
+                thSleepGetDevices.Abort()
+            End If
+
+            funcCRUD = New ClassCRUD
+            If funcCRUD.deleteAllDevices() Then
+
             End If
 
             ' Path to your PowerShell script
@@ -166,7 +203,7 @@ Public Class Form1
 
             Dim dt As New DataTable()
             For Each col In arr(0).Children(Of JProperty)()
-                If bgwLoadDevices.CancellationPending Then
+                If bgwGetDevices.CancellationPending Then
                     e.Cancel = True
                     Exit Sub
                 End If
@@ -174,7 +211,7 @@ Public Class Form1
                 dt.Columns.Add(col.Name)
             Next
             For Each obj As JObject In arr
-                If bgwLoadDevices.CancellationPending Then
+                If bgwGetDevices.CancellationPending Then
                     e.Cancel = True
                     Exit Sub
                 End If
@@ -185,10 +222,9 @@ Public Class Form1
                 Dim deviceStatus As String = ""
                 Dim deviceIP As String = ""
                 Dim deviceUserLogin As String = ""
-                Dim funcCRUD As New ClassCRUD
 
                 For Each col As JProperty In obj.Properties()
-                    If bgwLoadDevices.CancellationPending Then
+                    If bgwGetDevices.CancellationPending Then
                         e.Cancel = True
                         Exit Sub
                     End If
@@ -221,7 +257,7 @@ Public Class Form1
         End Try
     End Sub
 
-    Private Sub bgwLoadDevices_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles bgwLoadDevices.RunWorkerCompleted
+    Private Sub bgwGetDevices_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles bgwGetDevices.RunWorkerCompleted
         Try
             btnGetDevices.Enabled = True
             btnCancel.Enabled = False
@@ -244,6 +280,11 @@ Public Class Form1
                     Else
                         'dgvResults.DataSource = dt
 
+                        funcSettings = New ClassSettings
+                        If funcSettings.setLastDevicesRetrieved() Then
+
+                        End If
+
                         lblLoadingDevies.Text = "Done"
                         lblLoadingDevies.ForeColor = Color.Green
                     End If
@@ -251,16 +292,66 @@ Public Class Form1
             End If
 
             loadDevices()
+
+            'repeat get devices
+            Dim lastDevicesRetrieved As String = ""
+            Dim dtSettings As New DataTable
+            getDevicesEvery = 0
+            funcSettings = New ClassSettings
+            dtSettings = funcSettings.getSettings()
+
+            If dtSettings.Rows.Count > 0 Then
+                If Not String.IsNullOrEmpty(dtSettings.Rows(0).Item("last_devices_retrieved").ToString()) Then
+                    lastDevicesRetrieved = dtSettings.Rows(0).Item("last_devices_retrieved").ToString()
+                End If
+
+                If Not String.IsNullOrEmpty(dtSettings.Rows(0).Item("get_devices_every").ToString()) Then
+                    getDevicesEvery = CInt(dtSettings.Rows(0).Item("get_devices_every").ToString())
+                Else
+                    getDevicesEvery = 0
+                End If
+            End If
+
+            lblLastDevicesRetrieved.Text = "Last devices retrieved on " & lastDevicesRetrieved
+
+            If getDevicesEvery > 0 Then
+                If Not thSleepGetDevices.IsAlive Then
+                    thSleepGetDevices = New Thread(New ThreadStart(AddressOf goToSleepGetDevices))
+                    thSleepGetDevices.Start()
+                End If
+            End If
         Catch ex As Exception
             funcSettings.writeLog(Me.GetType().Name, ex.Message & vbCrLf & ex.StackTrace)
         End Try
     End Sub
 
+    Private Sub goToSleepGetDevices()
+        Me.Invoke(Sub()
+                      tmSleepGetDevices.Stop()
+                      tmSleepGetDevices.Interval = (getDevicesEvery * 3600) * 1000
+                      tmSleepGetDevices.Start()
+                  End Sub)
+    End Sub
+
+    Private Sub tmSleepGetDevices_Tick(sender As Object, e As EventArgs) Handles tmSleepGetDevices.Tick
+        Me.Invoke(Sub()
+                      If Not bgwGetDevices.IsBusy Then
+                          getDevices()
+                      End If
+                  End Sub)
+    End Sub
+
     Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
         Try
-            If bgwLoadDevices.IsBusy Then
-                If bgwLoadDevices.WorkerSupportsCancellation Then
-                    bgwLoadDevices.CancelAsync()
+            tmSleepGetDevices.Stop()
+
+            If thSleepGetDevices.IsAlive Then
+                thSleepGetDevices.Abort()
+            End If
+
+            If bgwGetDevices.IsBusy Then
+                If bgwGetDevices.WorkerSupportsCancellation Then
+                    bgwGetDevices.CancelAsync()
                 End If
             End If
         Catch ex As Exception
@@ -294,7 +385,7 @@ Public Class Form1
             dgvResults.Columns("device_ip").HeaderText = "IP Address"
             dgvResults.Columns("device_ip").AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
             dgvResults.Columns("device_ip").ReadOnly = True
-            dgvResults.Columns("device_user_login").HeaderText = "Logged On User"
+            dgvResults.Columns("device_user_login").HeaderText = "Logged In User"
             dgvResults.Columns("device_user_login").AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
             dgvResults.Columns("device_user_login").ReadOnly = True
             dgvResults.Columns("created_at").HeaderText = "Created At"
@@ -314,7 +405,17 @@ Public Class Form1
     End Sub
 
     Private Sub btnGetDevices_Click(sender As Object, e As EventArgs) Handles btnGetDevices.Click
-        getDevices()
+        Try
+            tmSleepGetDevices.Stop()
+
+            If thSleepGetDevices.IsAlive Then
+                thSleepGetDevices.Abort()
+            End If
+
+            getDevices()
+        Catch ex As Exception
+            funcSettings.writeLog(Me.GetType().Name, ex.Message & vbCrLf & ex.StackTrace)
+        End Try
     End Sub
 
     Private Sub dgvResults_CellFormatting(sender As Object, e As DataGridViewCellFormattingEventArgs) Handles dgvResults.CellFormatting
@@ -327,5 +428,23 @@ Public Class Form1
                 e.CellStyle.ForeColor = Color.Red
             End If
         End If
+    End Sub
+
+    Private Sub btnLogs_Click(sender As Object, e As EventArgs) Handles btnLogs.Click
+        Try
+            FrmLogs.Close()
+            FrmLogs.Show()
+        Catch ex As Exception
+            funcSettings.writeLog(Me.GetType().Name, ex.Message & vbCrLf & ex.StackTrace)
+        End Try
+    End Sub
+
+    Private Sub btnSettings_Click(sender As Object, e As EventArgs) Handles btnSettings.Click
+        Try
+            FrmSettings.Close()
+            FrmSettings.Show()
+        Catch ex As Exception
+            funcSettings.writeLog(Me.GetType().Name, ex.Message & vbCrLf & ex.StackTrace)
+        End Try
     End Sub
 End Class
